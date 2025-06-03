@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="refresh" content="0; URL='love.html'" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Love Letters</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Dancing Script', cursive;
+      background: #ffeaf4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      animation: fadeIn 1.5s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    #bgMorph {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      filter: brightness(0.8);
+      pointer-events: none;
+    }
+    #bgMorph img {
+      width: 110vw; height: 110vh;
+      object-fit: cover;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.3;
+    }
+
+    .envlope-wrapper {
+      perspective: 1000px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 320px;
+      height: 240px;
+      position: relative;
+      z-index: 2;
+    }
+
+    #envelope {
+      width: 300px; height: 200px;
+      background: #ffc5d0;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      animation: bounce 1.5s infinite;
+      position: relative;
+      cursor: pointer;
+      transform-style: preserve-3d;
+    }
+
+    #envelope::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 50%;
+      background: #ff94a4;
+      clip-path: polygon(0 0, 50% 100%, 100% 0);
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      transform-origin: top;
+      transform: rotateX(0deg);
+      transition: transform 0.6s ease;
+      backface-visibility: hidden;
+      z-index: 5;
+    }
+
+    #envelope.open::before { transform: rotateX(180deg); }
+
+    .letter {
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  width: 150%; /* smaller width to fit nicely inside envelope */
+  max-height: 300%; /* increase height to fit more content */
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  opacity: 0;
+  transition: transform 1s ease, opacity 0.6s ease;
+  transform-origin: bottom;
+  pointer-events: none;
+  overflow-y: auto; /* scroll if content too tall */
+  box-sizing: border-box;
+}
+
+/* make sure paragraph text wraps and has spacing */
+.words {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  line-height: 1.4;
+  word-break: break-word;
+  padding: 0 10px 15px; /* add bottom padding for spacing */
+  user-select: none;
+  max-height: 140px; /* limit paragraph height */
+  overflow-y: auto; /* scroll inside paragraph if too long */
+}
+
+    #envelope.open .letter.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-260px);
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .slide-out-right {
+      animation: slideOutRight 0.5s forwards;
+    }
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(-50%) translateY(-260px); }
+      to { opacity: 0; transform: translateX(100%) translateY(-260px); }
+    }
+
+    .slide-in-left {
+      animation: slideInLeft 0.5s forwards;
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-150%) translateY(-260px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(-260px); }
+    }
+
+    .folding {
+      animation: foldLetter 0.7s forwards;
+      transform-origin: bottom center;
+    }
+    @keyframes foldLetter {
+      from { transform: translateX(-50%) translateY(-260px) rotateX(0deg) scale(1); opacity: 1; }
+      to { transform: translateX(-50%) translateY(-180px) rotateX(-90deg) scale(0.3); opacity: 0; }
+    }
+
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .hearts {
+      position: absolute;
+      top: -40px; left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 6;
+    }
+    .heart {
+      font-size: 2rem;
+      position: absolute;
+      opacity: 0;
+    }
+    #envelope.open .heart { animation: popHeart 1s forwards; }
+    .heart.a1 { left: -40px; animation-delay: 0.1s; }
+    .heart.a2 { left: 0; animation-delay: 0.3s; }
+    .heart.a3 { left: 40px; animation-delay: 0.5s; }
+
+    @keyframes popHeart {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .sparkles {
+      position: absolute;
+      width: 100%; height: 100%;
+      top: 0; left: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .sparkle {
+      position: absolute;
+      width: 6px; height: 6px;
+      background: white;
+      border-radius: 50%;
+      animation: sparkleMove 5s infinite ease-in-out;
+      opacity: 0.8;
+    }
+    @keyframes sparkleMove {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to { transform: translateY(-600px) scale(0.5); opacity: 0; }
+    }
+
+    .reset, .next-btn {
+      position: absolute;
+      bottom: 20px;
+      z-index: 3;
+    }
+    .reset { left: 24%; }
+    .next-btn { left: 70%; transform: translateX(-50%); }
+
+    .reset button, .next-btn button, .audio-toggle button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #ff7aa3;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin: 5px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+    }
+
+    .reset button:hover, .next-btn button:hover, .audio-toggle button:hover {
+      background: #ff5a7a;
+    }
+
+    .audio-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 3;
+    }
+
+    .photo-collage {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Adjust polaroids width to fit better */
+.polaroid {
+  width: 110px;
+  padding-bottom: 20px;
+}
+
+.polaroid img {
+  width: 100%;
+  display: block;
+  border-radius: 5px;
+}
+
+.tilt-left { transform: rotate(-5deg); }
+.tilt-right { transform: rotate(5deg); }
+.tilt-left-bottom { transform: rotate(-3deg); }
+.tilt-right-bottom { transform: rotate(3deg); }
+
+  </style>
+</head>
+<body>
+  <div id="bgMorph">
+    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1280&q=80" alt="background" />
+  </div>
+
+  <div class="sparkles" id="sparkles"></div>
+
+  <div class="envlope-wrapper">
+    <div id="envelope" class="close" tabindex="0" aria-label="Envelope containing love letters" role="button" aria-pressed="false">
+      <div class="hearts">
+        <span class="heart a1">❤️</span>
+        <span class="heart a2">❤️</span>
+        <span class="heart a3">❤️</span>
+      </div>
+
+      <div class="letter active">
+  <p class="words">To the love of my life </p>
+  <p class="words">Five months na ta nag-uban, and still counting. Makaingon gyud ko nga daghan na kaayo ta naagian—laughter, tampo, kulitan, ug kaon-kaon sa gawas bisan limited ra ang budget. Pero worth it tanan basta kuyog tika.
+I know we’re both busy with school and life, pero thankful kaayo ko nga we still find ways to make time for each other. Bisan simple ra nga video call or chat, malipay na ko basta kabalo ko nga naa ra ka.
+Everyday with you is something I’m always grateful for. You remind me to take care of myself, to stay strong, and to keep going. Mao bitaw nga bisan kapoy usahay, basta naa imong message, okay na dayon ko.
+Gimingaw na gani ko sa atoang mga lakaw nga random ra, kanang "tara gawa ta" then biglang food trip dayon. Hahaha. Those simple things, they mean the world to me.
+Thank you for choosing me every day. Thank you for your patience, for your trust, and most of all—for your love.
+Let’s continue this journey, slowly but surely. I don’t need anything grand, baby. Basta ikaw ra akong kuyog, happy nako.
+Love you always,
+Your baby Mc</p>
+<div class="photo-collage">
+    <div class="polaroid tilt-left">
+      <img src="audio/images.jpg" alt="Memory 1" />
+    </div>
+    <div class="polaroid tilt-right">
+      <img src="audio/4e439d66e6153e8b0fbb0e1ce96620ea.jpg" alt="Memory 2" />
+    </div>
+  </div>
+</div>
+<div class="letter">
+  <p class="words">To the love of my life </p>
+  <p class="words">Happy 6th monthsary! Half a year na ta… grabe no? Dili lalim pero proud kaayo ko nato. We’ve been through so much—ups and downs, joy and challenges—but we're still here, stronger and more in love than ever.
+Unsa pa man akong pangitaon kung ikaw pa lang daan, sobra na. You’ve become my favorite person, my peace, my partner in everything. Nindot kaayo ang feeling nga naa koy someone nga mu-support nako in everything I do.
+Mao bitaw nga karon nga nakaabot ta og 6 months, akong wish is more understanding, more love, and more quality time together. Bisan usahay di nato ma-control ang mga problema or mood swings, importante nga we choose to stay. And I’m staying. I’m choosing you. Always.
+Gimingaw na ko nimo honestly. Gimingaw ko sa imong smile, sa imong lambing, sa imong kulit nga mura’g bata. Hahahaha. But that’s what makes you, YOU. Ug di nako na ipagpalit sa uban.
+Let’s continue growing together, love. One step at a time, one month at a time, until we reach forever. Ayaw kabalaka, I’m not going anywhere.
+I love you so much. Happy 6th monthsary again. And Soryy babyy if wala gyud ko ka hatag nimo og love letter kay sa 5th monthsary nato katong love letter nawala mn sad bag gud or sa table nako ato nga time maong ga create ko og balik ron. Not only this babyyy naa pud koy paper pero wala pa mahuman
+Forever yours, Babyyy,
+Your babyy Mc again</p>
+<div class="photo-collage">
+    <div class="polaroid tilt-left">
+      <img src="audio/d7ldyt9-6e5810ec-615a-4b78-a63a-cfd56553fe3f.png" alt="Memory 1" />
+    </div>
+    <div class="polaroid tilt-right">
+      <img src="audio/Happy-Monthsary-Girlfriend.jpg" alt="Memory 2" />
+    </div>
+  </div>
+  </div>
+      <div class="letter">
+  <p class="words">Acquaintance Day 💌</p>
+  <p class="words">Mao na nga time nga ganahan kaayo ko nga permi ko mo tupad nimo, murag di gyud ko gusto mo-bulag nimo bisan usa ka minuto. Ganahan ko nga naa ra ka permi sa akong kilid, kay gi-enjoy kaayo nako ang feeling nga naa ka. Grabeha ka sexy anang outfit nimo ato, mura bitaw ko na-hypnotize sa imoha! Hahaha. Mao nga swerte kaayo ko ato kay naa si MJ, kay nakapa-picture ko nimo—bisag hamos na akong nawng sa picture, okay ra kay ikaw ang pinaka-focus nako didto.
+Maypa lagi wala nalang ko nag committee ato adlawa para maka tupad ko permi nimo! HHAHAH
+Kanang feeling nga basta naa lang ka, murag kompleto na akong adlaw. Di gyud ko kapugong og tan-aw nimo, di gyud ko kabalo unsaon paglikay kay sobra ka gwapa ug sexy. Hahaha! Ganahan ko nga permi ta magtapad, mura kog na-adik sa presence nimo—ang imong aura, ang imong style, ang imong smile, tanan!
+Salamat kay naa tay picture ato, para bisan unsang panahon, makita nako ug mahinumduman unsa ka ka-special ug ka-cool nga girl nga naa sa akong kinabuhi. Di gyud ko malimot ato nga adlaw, kay didto nako nakita kung unsa ka ka-beautiful sa tibuok kalibutan para nako.</p>
+  <div class="photo-collage">
+    <div class="polaroid tilt-left">
+      <img src="audio/ACQUINTANCE1.jpg" alt="Memory 3" />
+    </div>
+    <div class="polaroid tilt-right">
+      <img src="audio/aquintance.jpg" alt="Memory 4" />
+    </div>
+  </div>
+</div>
+
+<div class="letter">
+  <p class="words">TechnoWeek Days </p>
+  <p class="words">Kani nga time, mao gyud ni or diri gyud ko nga time nga ganahan kaayo ko mo sayu permi para lang makuyog ta, gikan buntag hangtod gabii. Hahaha! Ganahan kaayo ko ani nga part kay gikan Monday to Friday, kuyog tika pirme. Murag way lain nga kalipay kaysa mag-uban ta pirmi.
+Di gyud ko kalimot ato nga time, oy, nga gusto kaayo ko magpa-kiss nimo. Pero dayon, nihinumdum ko nga nganguyab pa diay ko nimo ato nga time, mao nga wala nalang. Pero bisan pa man, ang feeling gyud nga pirme ta magkuyog, mura kog pinaka-bilis nga panahon sa akong kinabuhi.
+Ganahan ko nga magpadayon ta ani nga rutina, nga magmata ta nga kuyog pirmi, magkatawa, mag-istorya, ug mag enjoy sa simple pero special nga mga moments nato. Kay basta kuyog tika, murag kompleto na akong adlaw, ug wala nay kulang.</p>
+  <div class="photo-collage">
+    <div class="polaroid tilt-left">
+      <img src="audio/techno.jpg" alt="Memory 5" />
+    </div>
+    <div class="polaroid tilt-right">
+      <img src="audio/technoweek.jpg" alt="Memory 6" />
+    </div>
+  </div>
+</div>
+
+<div class="letter">
+  <p class="words">Practice mn Ata ni Hahaha</p>
+  <p class="words">Pero ganahan kaayo ko ani nga part nato duha, oyy, kay ikaw gwapa, tas ako gwapo! Hahaha! Ganahan gyud ko sa akong self diri kay gwapo kaayo ko tanawon samtang ga shade, mura kog si Justin Bieber nga naa sa Cebu! HAHHAHA! Ikaw pud, gwapa kaayo ka ani nga part, babyyy, cute kaayo — mura kag shiomai, kay murag mo-teleport gyud ko atubangan nimo anytime! HAHAHA.
+Pero honestly, this is the best day gyud, oyy, kay ganahan kaayo ko ani nga moment nato. You really boosted my confidence that day, mao nang confident kaayo ko sa akong self. Pero karon, murag nawala ra lagi na akong confidence, hahaha! Pero sa imoha, mura gyud ka ug power source nga makahatag nako og kusog ug kalipay.
+Ganahan ko nga permi ta mag-ani nga vibes, nga magkatawa ta, magpahiyom ta sa usag-usa, ug mag-enjoy sa simple pero pinaka-meaningful nga moments. Kay with you, mura kog bida sa akong kaugalingong movie, confident, happy, ug gwapo—bisan pa og naay mga panahon nga mawala ang akong kusog.
+Salamat kaayo nga naa ka, nga pirme ka makapahimo nako nga bati-on nako nga special ug worthy ko. And baby, ayaw kalimti nga para nako, gwapo gihapon ko bisan unsa pa! Hahaha!</p>
+  <div class="photo-collage">
+    <div class="polaroid tilt-left-bottom">
+      <img src="audio/laag2.jpg" alt="Memory 7" />
+    </div>
+    <div class="polaroid tilt-right-bottom">
+      <img src="audio/laag.jpg" alt="Memory 8" />
+    </div>
+  </div>
+</div>
+
+<div class="letter">
+  <p class="words">Valentine’s Day</p>
+  <p class="words">This part is something I can never forget. This is the moment nga pirme gyud nako mahinumduman, kay Valentine’s Day baya ni. A very special one. Kay kani nga adlaw, I made my very first bouquet—just for you. Sa tibuok kinabuhi nako, bisan sa akong mga ex, wa gyud ko kabuhat og bouquet, gani hatag gani wala. Pero para nimo, ikaw ang pinakauna. The only girl nga naka-dawat og hand-made bouquet nga gikan gyud sa akong kasingkasing, gihagoan nako, ug gi-andam para lang ipakita kung unsa ka nako ka special.
+Grabe bitaw, kung wala si MJ ato nga adlaw, wala ta gyuy picture karon! Maong thankful ko niya, kay natimaan tong moment nga para nako, priceless kaayo. Dili lang kay Valentine’s Day siya, pero kay with you nako gi-celebrate. Ikaw ra akong gihuna-huna ato nga adlaw, baby. While others were busy with chocolates and fancy gifts, ako, gahuna-huna ko unsaon nako pagpasabot nimo nga ikaw ra gyud ang akong gusto, ug ako lang gusto ipakita nga I’m willing to do things I’ve never done before—just for you.
+Ang pagbuhat ato nga bouquet, bisan lisod-lisod gamay, lingaw kaayo. Murag kada pilo sa ribbon, kada pili sa bulak, naay meaning. Murag akong gipilit tanan nakong effort, gugma, ug sincerity sa matag detalye. I wanted it to be perfect for you.
+Valentine’s Day is usually just another day for me before, pero tungod nimo, nahimo siyang something memorable. You made it feel like it was worth everything. That’s why this memory will always have a special place sa akong heart. Kay it’s not just about the bouquet or the picture, it’s about the love and effort behind it… for the one girl I truly care about. Ikaw ra.</p>
+  <div class="photo-collage">
+    <div class="polaroid tilt-left">
+      <img src="your-image7.jpg" alt="Memory 9" />
+    </div>
+    <div class="polaroid tilt-right">
+      <img src="your-image8.jpg" alt="Memory 10" />
+    </div>
+  </div>
+</div>
+
+<div class="letter">
+  <p class="words">Tiklop si MC</p>
+  <p class="words">Kani gyud nga time, diri ko di gyud ka move on nimo, baby. Kay grabeee… you looked so sexy gyud ani nga day! Hahahaha! Pag kita pa lang nako nimo, speechless ko. Naunsa man ko ato, oi, murag nalipong sa kakapungot—sa ka-sexy nimo! Hahaha! The way you carried yourself, the way you walked, the way you smiled… murag akong kalibutan ni-stop sa kadali para lang maka-appreciate sa imong presence.
+Wala gyud ko kabalo nga ing-ani diay ka ka-hot when you're wearing a dress, baby. Like, wow. Mura kog nakakita og goddess nga ni-anhi lang para i-remind ko kung unsa ko ka-swerte nga ako imong uyab. Every detail sa imong outfit ato nga time? Perfect. Pero mas perfect tungod kay ikaw ang nagsul-ob.
+Murag ako pa ang gitagbaw sa tan-aw nimo, then deep inside, nag-pray ko nga unta mo-freeze ang time kay di ko ganahan matapos tong moment. That was one of the days nga naka-ingon gyud ko sa akong self, "Grabe, kani nga babaye… siya na gyud."
+Up until now, bisag pila pa ka-adlaw ang milabay, murag fresh gihapon sa akong utok kung unsa ka ka-sexy ato nga day. Mura gyud kag magnet, baby. Dili ko kabuwag tan-aw, mura kog natukod sa imong beauty. Hahahaha!</p>
+  <div class="photo-collage">
+    <div class="polaroid tilt-left">
+      <img src="audio/valen.jpg" alt="Memory 11" />
+    </div>
+    <div class="polaroid tilt-right">
+      <img src="audio/valent.jpg" alt="Memory 12" />
+    </div>
+  </div>
+</div>
+ </div>
+  </div>
+
+  <div class="reset"><button id="reset">Reset</button></div>
+  <div class="next-btn"><button id="next">Next</button></div>
+  <div class="audio-toggle"><button id="audioBtn">Play Music</button></div>
+  <audio id="audio" loop preload="auto" src="https://cdn.pixabay.com/download/audio/2023/03/15/audio_7b66f88c2f.mp3?filename=gentle-love-music-8989.mp3"></audio>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const envelope = document.getElementById('envelope');
+    const letters = Array.from(envelope.querySelectorAll('.letter'));
+    const nextBtn = document.getElementById('next');
+    const resetBtn = document.getElementById('reset');
+    const audioBtn = document.getElementById('audioBtn');
+    const audio = document.getElementById('audio');
+
+    let currentIndex = 0;
+    let isAnimating = false;
+    let musicPlaying = false;
+
+    function openEnvelope() {
+      if (!envelope.classList.contains('open')) {
+        envelope.classList.add('open');
+        envelope.setAttribute('aria-pressed', 'true');
+      }
+    }
+
+    function closeEnvelope() {
+      envelope.classList.remove('open');
+      envelope.setAttribute('aria-pressed', 'false');
+    }
+
+    function showNextLetter() {
+      if (isAnimating || currentIndex >= letters.length) return;
+
+      isAnimating = true;
+
+      if (currentIndex === 0) {
+        openEnvelope();
+      }
+
+      const currentLetter = letters[currentIndex];
+      const nextLetter = letters[currentIndex + 1];
+
+      if (nextLetter) {
+        currentLetter.classList.add('slide-out-right');
+        currentLetter.classList.remove('active');
+
+        currentLetter.addEventListener('animationend', () => {
+          currentLetter.classList.remove('slide-out-right');
+          nextLetter.classList.add('slide-in-left', 'active');
+          nextLetter.addEventListener('animationend', () => {
+            nextLetter.classList.remove('slide-in-left');
+            isAnimating = false;
+          }, { once: true });
+
+          currentIndex++;
+        }, { once: true });
+
+      } else {
+        // Last letter: fold and close
+        currentLetter.classList.add('folding');
+        currentLetter.addEventListener('animationend', () => {
+          currentLetter.classList.remove('active', 'folding');
+          closeEnvelope();
+          currentIndex++;
+          isAnimating = false;
+        }, { once: true });
+      }
+    }
+
+    function resetLetters() {
+      if (isAnimating) return;
+
+      currentIndex = 0;
+      letters.forEach((letter, index) => {
+        letter.classList.remove('active', 'slide-in-left', 'slide-out-right', 'folding');
+        if (index === 0) {
+          letter.classList.add('active');
+        }
+      });
+      closeEnvelope();
+    }
+
+    function toggleAudio() {
+      if (!musicPlaying) {
+        audio.play().then(() => {
+          musicPlaying = true;
+          audioBtn.textContent = "Pause Music";
+        }).catch(() => {
+          musicPlaying = false;
+          audioBtn.textContent = "Play Music";
+        });
+      } else {
+        audio.pause();
+        musicPlaying = false;
+        audioBtn.textContent = "Play Music";
+      }
+    }
+
+    envelope.addEventListener('click', () => {
+      if (currentIndex === 0) {
+        envelope.classList.toggle('open');
+      }
+    });
+
+    envelope.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        envelope.click();
+      }
+    });
+
+    nextBtn.addEventListener('click', showNextLetter);
+    resetBtn.addEventListener('click', resetLetters);
+    audioBtn.addEventListener('click', toggleAudio);
+
+    // Sparkles
+    const sparklesContainer = document.getElementById('sparkles');
+    for (let i = 0; i < 25; i++) {
+      const sparkle = document.createElement('div');
+      sparkle.classList.add('sparkle');
+      sparkle.style.left = `${Math.random() * 100}%`;
+      sparkle.style.top = `${Math.random() * 100}%`;
+      sparkle.style.animationDelay = `${Math.random() * 5}s`;
+      sparkle.style.animationDuration = `${3 + Math.random() * 4}s`;
+      sparklesContainer.appendChild(sparkle);
+    }
+  });
+</script>
+
+</body>
+</html>
